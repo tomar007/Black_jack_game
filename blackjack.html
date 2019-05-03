@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+    	#dealer{
+    		flex: auto;
+			flex-direction: row;
+			height: 200px;
+    		background-color:lightgrey;
+    		width:48%;
+    		padding: 8px;    	
+    	}
+		#player{
+			
+    		flex: auto;
+			flex-direction: row;
+			background-color:darkred;
+    		width:48%;
+    		margin-left:40px;
+    		padding: 8px;
+    	}
+		.div1{
+    		background-image:url("https://cdnroute.bpsgameserver.com/common/Common/Common/neutral/image/2017/03/game.netentBlackjack3Hand.backgroundimage_v3.jpg");
+    		margin:3%;
+    		width: 95%;
+    		border: 10px solid darkred;
+    		border-radius: 100px; 
+    		background-color: darkgreen;
+    		padding: 50px;
+    	}
+
+    	#lower{
+    		height:80px;
+    		padding-top: 40px;
+    		padding-left: 32%;
+    	}
+		label{
+			font-size: 40px;
+			color:white;
+			
+		}
+    	#dealeri{
+    		border-radius: 5px;
+    		width:48%;
+    	
+    	}
+
+    	#playeri{
+    		border-radius: 5px;
+    		width:48%;
+    		margin-left: 40px;
+    	
+    	}
+
+    	h2{
+    		color: white;
+    	}
+
+    	button{
+    		padding:1%;
+    		border-radius: 2px;
+    		margin-left: 4px;
+    	}
+
+    	.card{
+    		border: 1px solid black;
+    		width: 100px;    		
+    		margin-top: 3px;
+    	}
+    	img{
+    		width: 100%;
+    	}
+		#deal{
+			width: 100px;
+			color: red;
+			font-size: 15px;
+			background-color: black;
+			border-color: black;
+		}
+		#lower2{
+			padding-left: 300px;
+		}
+		
+		#abc{
+			font-family: sans-serif;
+			font-size: 35px;
+			color: white;
+		}
+		
+	</style>
+	<title>BLACK-JACK</title>
+  </head>
+  <body>
+    <div class="div1">
+    	<div class="row">
+    		<div id="dealeri">
+				<h2>Dealer's hand :<span id="dealercount"></span></h2>
+    		</div>
+    		<div id="playeri">
+				<h2>Player's hand :<span id="playercount"></span></h2>
+    		</div>
+    	</div>
+    	<div class="row">
+    		<div id="dealer">
+    			<div class="row" id="dealerrow">
+    			</div>
+			</div>
+    		<div id="player">
+    			<div class="row" id="playerrow">
+    				
+    			</div>
+    		</div>
+    	</div>
+		<div class="row">
+  			<div class="col-sm-12" id="lower">
+  				<button id="hit" onclick="hitme()">HIT ME</button>
+  	  			<button id="stand" onclick='stand()'>STAND</button>
+  	  			<button id="split">SPLIT</button>
+				<button id="double_down" onclick="double_down()">DOUBLE DOWN</button>
+  	  		</div>
+		</div>
+			<div class="row">
+				<div class="col-sm-12" id="lower2">
+					<label>Your Bet:</label>
+					<input type="text" id="money">
+					<button id="deal" onclick="deal()">DEAL</button>
+					<p id="abc">Current Bet :<span id="current_bet"></span></p>
+				</div>
+			</div>
+    	</div>
+	  
+    	<script type="text/javascript">
+			
+    		var values=new Array();
+    		values=["2","3","4","5","6","7","8","9","10","ace","king","queen","jack"];
+    		var suits=new Array();
+    		suits=["clubs","diamonds","hearts","spades"];
+    		var src="";
+    		var div="";
+			var start=0;
+			var pcount=0;
+			var dcount=0;
+			var pscore=0;
+			var dscore=0;
+			var money=0;
+			var dealercards=new Array();
+			var hitconfirm=0;
+			function disable_all_buttons(){
+				document.getElementById('hit').style.display="none";
+				document.getElementById('double_down').style.display="none";
+				document.getElementById('split').style.display="none";
+				document.getElementById('stand').style.display="none";
+			}
+			
+			function check_blackjack(){
+				if(pscore==21){
+					document.getElementById("playercount").innerText="BLack-jaCK";
+					disable_all_buttons();
+				}
+			}
+			function maintain_money(type){
+				if(type==1){
+					document.getElementById("current_bet").innerText='';
+					money=0;
+					document.getElementById("abc").innerText="Money Lost ! Try again" + " "+ money;
+					
+				}
+				else if(type==2){
+					money=money*2;
+					console.log(money);
+					document.getElementById("abc").innerText='You Win!'+" " +money;
+				}
+			}
+			
+			
+			function maintain_dealer_cards(card,suits){
+				dealercards.push(card+"_"+"of"+"_"+suits);
+			}
+			
+			function maintaincount(card,type){
+				if(type=="player"){
+				   if(card!='ace'&&card!='jack'&&card!='queen'&&card!='king')
+					   pscore=pscore+parseInt(card);
+				   else{
+						if(card=='ace'){
+							if((pscore+11)>=22){
+								pscore=pscore+1;
+							}
+							else{
+								pscore=pscore+11;
+							}
+						}
+						else
+							pscore+=10;
+					}
+					   document.getElementById("playercount").innerText=pscore;
+					if(pscore>=22){
+						document.getElementById('playercount').innerText='busted';
+						maintain_money(1);
+					}
+				}
+				else{
+					 if(card!='ace'&&card!='jack'&&card!='queen'&&card!='king')
+					   dscore=dscore+parseInt(card);
+				   else{
+						if(card=='ace'){
+							if((dscore+11)>=22){
+								dscore=dscore+1;
+							}
+							else{
+								dscore=dscore+11;
+							}
+						}
+						else
+							dscore+=10;
+				       }						
+					}
+				}
+			
+    		function hitme()
+			{
+				if(start==1)
+				{
+					hitconfirm=1;
+					temp=Math.trunc(Math.random()*12)+Math.trunc(Math.random()*2);
+					src=values[temp]+"_"+"of"+"_"+suits[Math.trunc(Math.random()*4)];
+    				maintaincount(values[temp],'player');					
+					div=document.createElement("div");
+					div.className="col-sm-3";
+					div1=document.createElement("div");
+					div1.className="card";
+					div.appendChild(div1);
+					img=document.createElement('img');
+					img.className="card-img-bottom";
+					img.src="Images\\"+src+".png";
+					console.log(img.src);
+					div1.appendChild(img);
+					document.getElementById("playerrow").appendChild(div);
+    		    }
+			}
+			
+			function deal(){
+				if(start==0 && (document.getElementById("money").value!="") &&(parseInt(document.getElementById("money").value)>0)){
+					
+					money=document.getElementById("money").value;
+					document.getElementById("current_bet").innerText=money;
+					
+					for(i=0;i<2;i++){	
+						temp=Math.trunc(Math.random()*12)+Math.trunc(Math.random()*2);
+						maintaincount(values[temp],"player");
+						if(temp<=8)
+							pcount=pcount+temp+2;
+						else if(temp==9)
+							pcount=pcount+11;
+						else
+							pcount=pcount+10;
+						src=values[temp]+"_"+"of"+"_"+suits[Math.trunc(Math.random()*4)];
+					 
+						div=document.createElement("div");
+						div.className="col-sm-3";
+						div1=document.createElement("div");
+						div1.className="card";
+						div.appendChild(div1);
+						img=document.createElement('img');
+						img.className="card-img-bottom";
+						img.src="Images\\"+src+".png";
+						console.log(img.src);
+						div1.appendChild(img);
+						document.getElementById("playerrow").appendChild(div);
+					}
+					
+					for(i=0;i<2;i++)  //DEALER
+					{	
+						temp=Math.trunc(Math.random()*12)+Math.trunc(Math.random()*2);
+						maintaincount(values[temp],'dealer');
+						suit=Math.trunc(Math.random()*4);
+						maintain_dealer_cards(values[temp],suits[suit]);
+						src=values[temp]+"_"+"of"+"_"+suits[suit];
+						if(temp<=8)
+							dcount=pcount+temp+2;
+						else if(temp==9)
+							dcount=pcount+11;
+						else
+							dcount=pcount+10;
+						div=document.createElement("div");
+						div.className="col-sm-3";
+						div1=document.createElement("div");
+						div1.className="card";
+						div.appendChild(div1);
+						img=document.createElement('img');
+						
+						if(i==1)
+						{
+							img.className="card-img-bottom";
+							img.src="Images\\"+src+".png";							
+							div1.appendChild(img);
+							div1.id='dealerhide';
+							document.getElementById("dealerrow").appendChild(div);
+						}
+						else
+						{
+							img.className="card-img-bottom";
+							img.src="backside.jpg";							
+							div1.appendChild(img);	
+							document.getElementById("dealerrow").appendChild(div);
+						}
+					}
+				
+				start=1;
+				document.getElementById("deal").innerText="RESET";	
+				check_blackjack();
+				}
+				
+			}
+			
+			function stand(){
+				hiding=document.getElementsByClassName('col-sm-3');
+				document.getElementById('dealerrow').removeChild(hiding[0]);
+				document.getElementById('dealerrow').removeChild(hiding[0]);
+				if(dscore<17){
+					div=document.createElement("div");
+					div.className="col-sm-3";
+					div1=document.createElement("div");
+					div1.className="card";
+					div.appendChild(div1);
+					img=document.createElement('img');
+					img.className="card-img-bottom";
+					temp=Math.trunc(Math.random()*12)+Math.trunc(Math.random()*2);
+					maintaincount(values[temp],'dealer');
+					suit=Math.trunc(Math.random()*4);
+					maintain_dealer_cards(values[temp],suits[suit]);				
+				}				
+				else if(dscore>=22){
+					document.getElementById('dealercount').innerText='busted';
+					maintain_money(2);
+				}
+						
+				if(dscore>pscore && dscore<22||pscore>21){
+					document.getElementById("dealercount").innerText="winner";
+					document.getElementById('playercount').innerText="busted";
+					maintain_money(1);
+					}
+				else{
+					document.getElementById('dealercount').innerText='busted';
+					document.getElementById("playercount").innerText="winner";
+					maintain_money(2);
+				}
+				
+				for(i=0;i<dealercards.length;i++){
+					div=document.createElement("div");
+					div.className="col-sm-3";
+					div1=document.createElement("div");
+					div1.className="card";
+					div.appendChild(div1);
+					img=document.createElement('img');
+					img.className="card-img-bottom";
+					img.src="Images\\"+dealercards[i]+".png";
+					div1.appendChild(img);	
+					document.getElementById("dealerrow").appendChild(div);
+				}
+			}
+			
+		function double_down(){
+			money=money*2;
+			document.getElementById('current_bet').innerText=money;
+			hitme();
+			if(pscore<22){
+				stand();
+			}
+			
+		}
+
+			
+			
+		</script>
+		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/	X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  	</body>
+</html>
